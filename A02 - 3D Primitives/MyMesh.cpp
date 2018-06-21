@@ -405,10 +405,6 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Release();
 	Init();
 
-	// center points
-	vector3 topCenter = vector3(0.0f, a_fHeight / 2, 0.0f);
-	vector3 bottomCenter = vector3(0.0f, -(a_fHeight / 2), 0.0f);
-
 	// storage
 	std::vector <vector3> outerTop;
 	std::vector <vector3> outerBottom;
@@ -427,7 +423,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 
 	float newAngle = 0;
 
-	// all remaining points
+	// remaining points
 	for (int i = 0; i < a_nSubdivisions + 1; i++)
 	{
 		// create point
@@ -482,11 +478,13 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	if (a_fInnerRadius > a_fOuterRadius)
 		std::swap(a_fInnerRadius, a_fOuterRadius);
 
+	// Subdivision Height
 	if (a_nSubdivisionsA < 3)
 		a_nSubdivisionsA = 3;
 	if (a_nSubdivisionsA > 360)
 		a_nSubdivisionsA = 360;
 
+	// Subdivision Axis
 	if (a_nSubdivisionsB < 3)
 		a_nSubdivisionsB = 3;
 	if (a_nSubdivisionsB > 360)
@@ -495,9 +493,59 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	// storage
+	std::vector <vector3> outerTop;
+	std::vector <vector3> outerBottom;
+	std::vector <vector3> innerTop;
+	std::vector <vector3> innerBottom;
+	
+	// calculate angles
+	// total interior angles
+	float totalInterior = (a_nSubdivisionsB - 2) * 180;
+	// individual interior angles
+	float intAngles = totalInterior / a_nSubdivisionsB;
+	// center angle
+	float centerAngle = 180 - intAngles;
+	// radians
+	float theta = glm::radians(centerAngle);
+
+	float newAngle = 0;
+
+	// remaining points
+	for (int i = 0; i < a_nSubdivisionsA + 1; i++)
+	{
+		// create point
+		vector3 newTopOuter(glm::cos(newAngle) * a_fOuterRadius, a_fOuterRadius / 2, glm::sin(newAngle) * a_fOuterRadius);
+		vector3 newBottomOuter(glm::cos(newAngle) * a_fOuterRadius, -a_fOuterRadius / 2, glm::sin(newAngle) * a_fOuterRadius);
+
+		vector3 newTopInner(glm::cos(newAngle) * a_fInnerRadius, a_fInnerRadius / 2, glm::sin(newAngle) * a_fInnerRadius);
+		vector3 newBottomInner(glm::cos(newAngle) * a_fInnerRadius, -a_fInnerRadius / 2, glm::sin(newAngle) * a_fInnerRadius);
+
+		// add to storage
+		outerTop.push_back(newTopOuter);
+		outerBottom.push_back(newBottomOuter);
+
+		innerTop.push_back(newTopInner);
+		innerBottom.push_back(newBottomInner);
+
+		// increment angle
+		newAngle += theta;
+	}
+
+	// middle strip
+	for (int i = 0; i < a_nSubdivisionsB; i++)
+	{
+		AddQuad(outerBottom[i + 1], outerBottom[i], outerTop[i + 1], outerTop[i]);
+		AddQuad(innerTop[i + 1], innerTop[i], innerBottom[i + 1], innerBottom[i]);
+	}
+
+	// top and bottoms
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		AddQuad(outerBottom[i], outerBottom[i + 1], innerBottom[i], innerBottom[i + 1]);
+		AddQuad(innerTop[i], innerTop[i + 1], outerTop[i], outerTop[i + 1]);
+	}
+
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);

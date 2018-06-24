@@ -2,7 +2,7 @@
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Catherine Nemechek - crn4802@rit.edu";
 
 	//Set the position and target of the camera
 	m_pCameraMngr->SetPositionTargetAndUp(vector3(5.0f,3.0f,15.0f), ZERO_V3, AXIS_Y);
@@ -26,6 +26,7 @@ void Application::InitVariables(void)
 	m_stopsList.push_back(vector3(5.0f, 2.0f, -5.0f));
 
 	m_stopsList.push_back(vector3(1.0f, 3.0f, -5.0f));
+
 }
 void Application::Update(void)
 {
@@ -54,16 +55,34 @@ void Application::Display(void)
 	//calculate the current position
 	vector3 v3CurrentPos;
 	
-
-
-
-
-	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
-	//-------------------
 	
+	//your code goes here
+	//v3CurrentPos = m_stopsList[0];
 
+	static uint m_route = 0;
 
+	for (uint i = 0; i < m_stopsList.size(); ++i)
+	{
+		// set the start and end positions
+		vector3 v3Start;
+		vector3 v3End;
+
+		v3Start = m_stopsList[m_route];
+		v3End = m_stopsList[(m_route + 1) % m_stopsList.size()];
+
+		float fPercent = MapValue(fTimer, 0.0f, 2.0f, 0.0f, 1.0f);
+
+		v3CurrentPos = glm::lerp(v3Start, v3End, fPercent);
+
+		// reset timer and change route
+		if (fPercent >= 1.0f)
+		{
+			m_route++;
+			fTimer = 0.0f;
+			m_route %= m_stopsList.size(); // make sure the route does not exceed size
+		}
+	}
+	
 	
 	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);

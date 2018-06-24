@@ -15,6 +15,8 @@ class Application
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 	std::vector<vector3> m_stopsList;
 	Simplex::Model* m_pModel = nullptr;
+
+	std::vector<int> m_routes; // keeps track of the routes between stops
 private:
 	static ImGuiObject gui; //GUI object
 	

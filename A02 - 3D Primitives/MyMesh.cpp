@@ -532,8 +532,8 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 		newAngle += theta;
 	}
 
-	// middle strip
-	for (int i = 0; i < a_nSubdivisionsB; i++)
+	// middle ring
+	for (int i = 0; i < a_nSubdivisionsA; i++)
 	{
 		AddQuad(outerBottom[i + 1], outerBottom[i], outerTop[i + 1], outerTop[i]);
 		AddQuad(innerTop[i + 1], innerTop[i], innerBottom[i + 1], innerBottom[i]);

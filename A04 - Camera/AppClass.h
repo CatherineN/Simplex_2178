@@ -20,6 +20,16 @@ class Application
 	MyMeshManager* m_pMyMeshMngr = nullptr; //My Mesh Manager
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //Programmer
 private:
+
+	vector3 m_v3CameraPos = vector3(); // position of the camera
+	vector3 m_v3CameraDir = vector3(); // direction the camera is facing
+	vector3 m_v3CameraTarget = vector3(); // target of the camera
+	vector3 m_v3CameraUp = vector3(); // up vector of the camera
+	vector3 m_v3CameraRight = vector3(); // right vector of the camera
+	matrix4 m_m4Rotation = matrix4();
+	quaternion quat1;
+	quaternion quat2;
+
 	static ImGuiObject gui; //GUI object
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame

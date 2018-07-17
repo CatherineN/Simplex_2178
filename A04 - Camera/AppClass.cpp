@@ -3,7 +3,7 @@ using namespace Simplex;
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Catherine Nemechek - crn4802@rit.edu";
 
 	//Set the position and target of the camera
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
@@ -19,6 +19,13 @@ void Application::InitVariables(void)
 	//Get the singleton
 	m_pMyMeshMngr = MyMeshManager::GetInstance();
 	m_pMyMeshMngr->SetCamera(m_pCamera);
+
+	// Camera Variables
+	m_v3CameraPos = vector3(0.0f, 3.0f, 20.f);
+	m_v3CameraDir = vector3(0.0f, 0.0f, -1.0f);
+	m_v3CameraTarget = m_v3CameraPos + m_v3CameraDir;
+	m_v3CameraUp = vector3(0.0f, 1.0f, 0.0f);
+	m_v3CameraRight = vector3(1.0f, 0.0f, 0.0f);
 }
 void Application::Update(void)
 {
@@ -30,6 +37,17 @@ void Application::Update(void)
 
 	//Is the first person camera active?
 	CameraRotation();
+
+	vector3 v3Look = m_v3CameraPos;
+	v3Look.z -= 5.0f;
+
+	// update the camera's target
+	m_v3CameraTarget = m_v3CameraPos + m_v3CameraDir;
+
+	// set the values of the camera
+	m_pCamera->SetTarget(m_v3CameraTarget);
+	m_pCamera->SetUp(m_v3CameraUp);
+	m_pCamera->SetPosition(m_v3CameraPos);
 
 	//Add objects to the Manager
 	for (int j = -50; j < 50; j += 2)

@@ -369,6 +369,18 @@ void Application::CameraRotation(float a_fSpeed)
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
 	//Change the Yaw and the Pitch of the camera
+
+	// --NEW CODE--
+	// calculate the rotations based on X and Y (right and up)
+	quat1 = glm::angleAxis(-fAngleX, m_v3CameraRight);
+	quat2 = glm::angleAxis(fAngleY, m_v3CameraUp);
+
+	// update the directional vecs with rotation
+	m_v3CameraDir = quat1 * quat2 * m_v3CameraDir;
+	m_v3CameraRight = quat1 * quat2 * m_v3CameraRight;
+	m_v3CameraUp = quat1 * quat2 * m_v3CameraUp;
+	m_v3CameraTarget = m_v3CameraPos + m_v3CameraDir;
+
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 }
 //Keyboard
@@ -385,6 +397,29 @@ void Application::ProcessKeyboard(void)
 
 	if (fMultiplier)
 		fSpeed *= 5.0f;
+
+#pragma region Movement Code
+
+	// Forward
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		m_v3CameraPos += m_v3CameraDir * fSpeed;
+
+	// Left
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		m_v3CameraPos -= m_v3CameraRight * fSpeed;
+
+	// Backward
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		m_v3CameraPos -= m_v3CameraDir * fSpeed;
+
+	// Right
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		m_v3CameraPos += m_v3CameraRight * fSpeed;
+
+
+
+#pragma endregion
+
 #pragma endregion
 }
 //Joystick

@@ -87,6 +87,46 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	//your code goes here---------------------
 	m_v3MinG = m_v3MinL;
 	m_v3MaxG = m_v3MaxL;
+	
+	// front
+	m_v3Corners[4] = vector3(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z);
+	m_v3Corners[5] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z);
+	m_v3Corners[6] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z);
+	m_v3Corners[7] = m_v3MaxL;
+
+	// back
+	m_v3Corners[0] = m_v3MinL;
+	m_v3Corners[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
+	m_v3Corners[2] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z);
+	m_v3Corners[3] = vector3(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z);
+
+	// change from Local space to Global
+	for (int i = 0; i < 8; ++i)
+	{
+		m_v3Corners[i] = vector3(m_m4ToWorld * vector4(m_v3Corners[i], 1.0f));
+	}
+
+	// make the global max/min the first corner of cube
+	m_v3MaxG = m_v3MinG = m_v3Corners[0];
+
+	// now find the new global max/min
+	for (int i = 1; i < 8; ++i)
+	{
+		if (m_v3MaxG.x < m_v3Corners[i].x)
+			m_v3MaxG.x = m_v3Corners[i].x;
+		else if (m_v3MinG.x > m_v3Corners[i].x)
+			m_v3MinG.x = m_v3Corners[i].x;
+
+		if (m_v3MaxG.y < m_v3Corners[i].y)
+			m_v3MaxG.y = m_v3Corners[i].y;
+		else if (m_v3MinG.y > m_v3Corners[i].y)
+			m_v3MinG.y = m_v3Corners[i].y;
+
+		if (m_v3MaxG.z < m_v3Corners[i].z)
+			m_v3MaxG.z = m_v3Corners[i].z;
+		else if (m_v3MinG.z > m_v3Corners[i].z)
+			m_v3MinG.z = m_v3Corners[i].z;
+	}
 	//----------------------------------------
 
 	//we calculate the distance between min and max vectors

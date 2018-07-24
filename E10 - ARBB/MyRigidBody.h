@@ -13,6 +13,9 @@ namespace Simplex
 //System Class
 class MyRigidBody
 {
+	vector3 m_v3Corners[8]; // list of corners for ARBB
+
+
 	MeshManager* m_pMeshMngr = nullptr; //for displaying the Rigid Body
 
 	bool m_bVisibleBS = false; //Visibility of bounding sphere

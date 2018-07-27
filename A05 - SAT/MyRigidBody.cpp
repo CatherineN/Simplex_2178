@@ -276,17 +276,161 @@ void MyRigidBody::AddToRenderList(void)
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	/*
-	Your code goes here instead of this comment;
+	// LOCAL AXES
+	// this obj
+	vector3 thisAxes[3];
+	thisAxes[0] = vector3(m_m4ToWorld * vector4(1, 0, 0, 0));
+	thisAxes[1] = vector3(m_m4ToWorld * vector4(0, 1, 0, 0));
+	thisAxes[2] = vector3(m_m4ToWorld * vector4(0, 0, 1, 0));
 
-	For this method, if there is an axis that separates the two objects
-	then the return will be different than 0; 1 for any separating axis
-	is ok if you are not going for the extra credit, if you could not
-	find a separating axis you need to return 0, there is an enum in
-	Simplex that might help you [eSATResults] feel free to use it.
-	(eSATResults::SAT_NONE has a value of 0)
-	*/
+	// other obj
+	vector3 otherAxes[3];
+	otherAxes[0] = vector3(a_pOther->m_m4ToWorld * vector4(1, 0, 0, 0));
+	otherAxes[1] = vector3(a_pOther->m_m4ToWorld * vector4(0, 1, 0, 0));
+	otherAxes[2] = vector3(a_pOther->m_m4ToWorld * vector4(0, 0, 1, 0));
 
-	//there is no axis test that separates this two objects
+	// Half lengths of objects
+	// this
+	float thisHalf[3];
+	thisHalf[0] = glm::length(v3Corner[1] - v3Corner[0]) / 2.0f;
+	thisHalf[1] = glm::length(v3Corner[2] - v3Corner[0]) / 2.0f;
+	thisHalf[2] = glm::length(v3Corner[4] - v3Corner[0]) / 2.0f;
+
+	// other
+	float otherHalf[3];
+	otherHalf[0] = glm::length(a_pOther->v3Corner[1] - a_pOther->v3Corner[0]) / 2.0f;
+	otherHalf[1] = glm::length(a_pOther->v3Corner[2] - a_pOther->v3Corner[0]) / 2.0f;
+	otherHalf[2] = glm::length(a_pOther->v3Corner[4] - a_pOther->v3Corner[0]) / 2.0f;
+
+	// cetner points
+	vector3 thisCenter = GetCenterGlobal();
+	vector3 otherCenter = a_pOther->GetCenterGlobal();
+
+	// compute rotational matrix
+	matrix3 m3_rotation;
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			m3_rotation[i][j] = glm::dot(thisAxes[i], otherAxes[j]);
+		}
+	}
+
+	// translation vector
+	vector3 v3_translation = otherCenter - thisCenter;
+	v3_translation = vector3(glm::dot(v3_translation, thisAxes[0]), glm::dot(v3_translation, thisAxes[1]), glm::dot(v3_translation, thisAxes[2]));
+
+	// adjusted rotational matrix
+	matrix3 m3_absR;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			m3_absR[i][j] = abs(m3_rotation[i][j]) + DBL_EPSILON;
+		}
+	}
+
+	// comparative floats
+	float ra;
+	float rb;
+
+	// Test the a (this) axes
+	for (int i = 0; i < 3; i++)
+	{
+		ra = thisHalf[i];
+		rb = otherHalf[0] * m3_absR[i][0] + otherHalf[1] * m3_absR[i][1] + otherHalf[2] * m3_absR[i][2];
+		if (abs(v3_translation[i]) > ra + rb)
+		{
+			return 1;
+		}
+	}
+
+	// Test the b (other) axes
+	for (int i = 0; i < 3; i++)
+	{
+		ra = thisHalf[0] * m3_absR[0][i] + thisHalf[1] * m3_absR[1][i] + thisHalf[2] * m3_absR[2][i];
+		rb = otherHalf[i];
+		if (abs(v3_translation[0] * m3_rotation[0][i] + v3_translation[1] * m3_rotation[1][i] + v3_translation[2] * m3_rotation[2][i]) > ra + rb)
+		{
+			return 1;
+		}
+	}
+
+	// test A0 x B0
+	ra = thisHalf[1] * m3_absR[2][0] + thisHalf[2] * m3_absR[1][0];
+	rb = otherHalf[1] * m3_absR[0][2] + otherHalf[2] * m3_absR[0][1];
+	if (abs(v3_translation[2] * m3_rotation[1][0] - v3_translation[1] * m3_rotation[2][0]) > ra + rb)
+	{
+		return 1;
+	}
+
+	// test A0 x B1
+	ra = thisHalf[1] * m3_absR[2][1] + thisHalf[2] * m3_absR[1][1];
+	rb = otherHalf[0] * m3_absR[0][2] + otherHalf[2] * m3_absR[0][0];
+	if (abs(v3_translation[2] * m3_rotation[1][1] - v3_translation[1] * m3_rotation[2][1]) > ra + rb)
+	{
+		return 1;
+	}
+
+	// test A0 x B2
+	ra = thisHalf[1] * m3_absR[2][2] + thisHalf[2] * m3_absR[1][2];
+	rb = otherHalf[0] * m3_absR[0][2] + otherHalf[2] * m3_absR[0][0];
+	if (abs(v3_translation[2] * m3_rotation[1][2] - v3_translation[1] * m3_rotation[2][2]) > ra + rb)
+	{
+		return 1;
+	}
+
+	// test A1 x B0
+	ra = thisHalf[0] * m3_absR[2][0] + thisHalf[2] * m3_absR[0][0];
+	rb = otherHalf[1] * m3_absR[1][2] + otherHalf[2] * m3_absR[1][1];
+	if (abs(v3_translation[0] * m3_rotation[2][0] - v3_translation[2] * m3_rotation[0][0]) > ra + rb)
+	{
+		return 1;
+	}
+
+	// test A1 x B1
+	ra = thisHalf[0] * m3_absR[2][1] + thisHalf[2] * m3_absR[0][1];
+	rb = otherHalf[0] * m3_absR[1][2] + otherHalf[2] * m3_absR[1][0];
+	if (abs(v3_translation[0] * m3_rotation[2][1] - v3_translation[2] * m3_rotation[0][1]) > ra + rb)
+	{
+		return 1;
+	}
+
+	// test A1 x B2
+	ra = thisHalf[0] * m3_absR[2][2] + thisHalf[2] * m3_absR[0][2];
+	rb = otherHalf[0] * m3_absR[1][1] + otherHalf[1] * m3_absR[1][0];
+	if (abs(v3_translation[0] * m3_rotation[2][2] - v3_translation[2] * m3_rotation[0][2]) > ra + rb)
+	{
+		return 1;
+	}
+
+	// test A2 x B0
+	ra = thisHalf[0] * m3_absR[1][0] + thisHalf[1] * m3_absR[0][0];
+	rb = otherHalf[1] * m3_absR[2][2] + otherHalf[2] * m3_absR[2][1];
+	if (abs(v3_translation[1] * m3_rotation[0][0] - v3_translation[0] * m3_rotation[1][0]) > ra + rb)
+	{
+		return 1;
+	}
+
+	// test A2 x B1
+	ra = thisHalf[0] * m3_absR[1][1] + thisHalf[1] * m3_absR[0][1];
+	rb = otherHalf[0] * m3_absR[2][2] + otherHalf[2] * m3_absR[2][0];
+	if (abs(v3_translation[1] * m3_rotation[0][1] - v3_translation[0] * m3_rotation[1][1]) > ra + rb)
+	{
+		return 1;
+	}
+
+	// test A2 x B2
+	ra = thisHalf[0] * m3_absR[1][2] + thisHalf[1] * m3_absR[0][2];
+	rb = otherHalf[0] * m3_absR[2][1] + otherHalf[2] * m3_absR[2][0];
+	if (abs(v3_translation[1] * m3_rotation[0][2] - v3_translation[0] * m3_rotation[1][2]) > ra + rb)
+	{
+		return 1;
+	}
+
+	m_pMeshMngr->GeneratePlane(30.0f, C_GREEN);
+
+	//there is no axis test that separates these two objects
 	return eSATResults::SAT_NONE;
 }

@@ -95,7 +95,7 @@
     <ClInclude Include="MyRigidBody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MyOctant.h">
+    <ClInclude Include="MyOctantExample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,5 @@
 #include "AppClass.h"
+
 using namespace Simplex;
 void Application::InitVariables(void)
 {
@@ -8,7 +9,7 @@ void Application::InitVariables(void)
 		vector3(0.0f, 0.0f, 99.0f),	//Target
 		AXIS_Y);					//Up
 
-	m_pLightMngr->SetPosition(vector3(0.0f, 3.0f, 13.0f), 1); //set the position of first light (0 is reserved for ambient light)
+	m_pLightMngr->SetPosition(vector3(0.0f, 3.0f, 13.0f), 1); //set the position of first light (0 is reserved for ambient light
 
 #ifdef DEBUG
 	uint uInstances = 900;
@@ -55,7 +56,7 @@ void Application::Display(void)
 	ClearScreen();
 
 	//display octree
-	//m_pRoot->Display();
+	m_pRoot->Display();
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();

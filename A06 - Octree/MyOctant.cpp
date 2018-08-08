@@ -1,4 +1,4 @@
-#include "MyOctant.h"
+#include "MyOctantExample.h"
 using namespace Simplex;
 
 //set static vars

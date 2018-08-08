@@ -12,6 +12,8 @@ Date: 2017/06
 
 #include "MyEntityManager.h"
 
+#include "MyOctantExample.h"
+
 namespace Simplex
 {
 	//Adding Application to the Simplex namespace

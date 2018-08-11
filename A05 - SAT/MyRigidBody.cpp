@@ -232,7 +232,7 @@ bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 	//if they are colliding check the SAT
 	if (bColliding)
 	{
-		if(SAT(a_pOther) != eSATResults::SAT_NONE)
+		if(SAT(a_pOther) == eSATResults::SAT_NONE)
 			bColliding = false;// reset to false
 	}
 

@@ -5,7 +5,6 @@ Date: 2017/06
 #ifndef __APPLICATIONCLASS_H_
 #define __APPLICATIONCLASS_H_
 
-
 #include "Definitions.h"
 
 #include "ControllerConfiguration.h"
@@ -15,18 +14,11 @@ Date: 2017/06
 
 #include "MyOctant.h"
 
-#include <queue>          // allows use of std::priority_queue
-#include <functional>     // allows use of std::greater
-
-
 namespace Simplex
 {
 	//Adding Application to the Simplex namespace
 class Application
 {
-	vector4 nodes[49]; // list of nodes -- 4th entry contains the weight of that node
-	//std::vector<vector3> nodes[49];
-
 	MyOctant* m_pRoot = nullptr;//Root octant
 	MyEntityManager* m_pEntityMngr = nullptr; //Entity Manager
 	uint m_uOctantID = -1; //Index of Octant to display
@@ -147,16 +139,6 @@ private:
 	OUTPUT: ---
 	*/
 	void Release(void);
-
-	/*
-	USAGE: Determines the shortest path using A-star
-	ARGUMENTS:  vec3 startPosition,
-				vec3 goalPosition,
-				vec3 previousNode,
-				float cost
-	OUTPUT: ---
-	*/
-	void ShortestPath(vector3 startPosition, vector3 goalPosition, vector3 previousNode, float cost);
 #pragma endregion
 
 #pragma region Main Loop
@@ -355,7 +337,7 @@ private:
 #endif //__APPLICATIONCLASS_H_
 
 /*
-USAGE: 
+USAGE:
 ARGUMENTS: ---
 OUTPUT: ---
 */
